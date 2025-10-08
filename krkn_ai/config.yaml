@@ -1,0 +1,61 @@
+# Path to your kubeconfig file
+kubeconfig_file_path: "./path/to/kubeconfig.yaml"
+
+# Genetic algorithm parameters
+generations: 5
+population_size: 10
+composition_rate: 0.3
+population_injection_rate: 0.1
+
+# Fitness function configuration for defining SLO
+# In the below example, we use Total Restarts in "robot-shop" namespace as the SLO
+fitness_function: 
+  query: 'sum(kube_pod_container_status_restarts_total{namespace="robot-shop"})'
+  type: point
+  # Whether to include non-zero exit code status in the fitness function scoring
+  include_krkn_failure: true
+
+# Health endpoints for synthetic monitoring of applications
+health_checks:
+  stop_watcher_on_failure: false
+  applications:
+  - name: cart
+    url: "$HOST/cart/add/1/Watson/1"
+  - name: catalogue
+    url: "$HOST/catalogue/categories"
+
+# Chaos scenarios to consider during testing
+scenario:
+  pod-scenarios:
+    enable: true
+  application-outages:
+    enable: true
+  container-scenarios:
+    enable: false
+  node-cpu-hog:
+    enable: false
+  node-memory-hog:
+    enable: false
+
+# Cluster components to consider for Krkn-AI testing
+cluster_components:
+  namespaces:
+  - name: robot-shop
+    pods:
+    - containers:
+      - name: cart
+      labels:
+        service: cart
+      name: cart-7cd6c77dbf-j4gsv
+    - containers:
+      - name: catalogue
+      labels:
+        service: catalogue
+      name: catalogue-94df6b9b-pjgsr
+  nodes:
+  - labels:
+      kubernetes.io/hostname: node-1
+    name: node-1
+  - labels:
+      kubernetes.io/hostname: node-2
+    name: node-2

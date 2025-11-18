@@ -276,12 +276,6 @@ class NetworkScenarioTargetNodeInterfaceParameter(BaseParameter):
     krknctl_name: str = "target-node-interface"
     value: str = "{}"
 
-class NetworkScenarioWaitDurationParameter(BaseParameter):
-    krknhub_name: str = "WAIT_DURATION"
-    krknctl_name: str = "wait-duration"
-    value: int = 300
-
-
 class DNSOutageDurationParameter(BaseParameter):
     krknhub_name: str = "TEST_DURATION"
     krknctl_name: str = "chaos-duration"

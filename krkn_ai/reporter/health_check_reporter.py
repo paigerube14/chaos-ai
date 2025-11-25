@@ -17,9 +17,28 @@ from krkn_ai.utils.logger import get_logger
 logger = get_logger(__name__)
 
 class HealthCheckReporter:
-    def __init__(self, output_dir: str):
+    def __init__(self, output_dir: str, output_config=None):
         self.output_dir = os.path.join(output_dir, "reports")
+        self.output_config = output_config
         os.makedirs(self.output_dir, exist_ok=True)
+    
+    def _format_output_filename(self, fmt: str, generation_id: int, scenario_id: int, scenario_name: str) -> str:
+        """
+        Format output filename using the configured format string.
+        
+        Supports:
+        - %g: Generation ID
+        - %s: Scenario ID
+        - %c: Scenario Name
+        
+        Note: Scenario name is sanitized to remove characters that are not safe for filenames.
+        """
+        import re
+        # Sanitize scenario name to make it filesystem-safe
+        # Replace characters that are not safe for filenames with underscores
+        safe_scenario_name = re.sub(r'[<>:"/\\|?*]', '_', scenario_name)
+        safe_scenario_name = safe_scenario_name.replace(' ', '_')
+        return fmt.replace('%g', str(generation_id)).replace('%s', str(scenario_id)).replace('%c', safe_scenario_name)
 
     def save_report(self, fitness_results: List[CommandRunResult]):
         logger.debug("Saving health check report")
@@ -63,7 +82,28 @@ class HealthCheckReporter:
         logger.debug("Plotting health check result")
         output_dir = os.path.join(self.output_dir, "graphs")
         os.makedirs(output_dir, exist_ok=True)
-        save_path = os.path.join(output_dir, "scenario_%d.png" % result.scenario_id)
+        
+        # Format graph filename using configured format
+        scenario_name = getattr(result.scenario, "name", None)
+        if not scenario_name or not isinstance(scenario_name, str):
+            scenario_name = getattr(result.scenario, "__class__", type("Scenario", (), {"__name__": "Scenario"})).__name__
+
+        if self.output_config:
+            graph_filename = self._format_output_filename(
+                self.output_config.graph_name_fmt,
+                result.generation_id,
+                result.scenario_id,
+                scenario_name
+            )
+            # Ensure the extension is .png
+            if not graph_filename.endswith('.png'):
+                base_name = os.path.splitext(graph_filename)[0]
+                graph_filename = f"{base_name}.png"
+        else:
+            # Default format for backward compatibility
+            graph_filename = "scenario_%d.png" % result.scenario_id
+        
+        save_path = os.path.join(output_dir, graph_filename)
 
         # Flatten the data
         records = []

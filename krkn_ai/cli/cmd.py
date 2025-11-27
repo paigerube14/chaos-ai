@@ -57,7 +57,10 @@ def run(ctx,
     try:
         parsed_config = read_config_from_file(config, param)
         logger.info("Initialized config: %s", config)
-    except ValidationError as err:
+    except (KeyError) as err:
+        logger.error("Unable to parse config file due to missing key: %s", err)
+        exit(1)
+    except (ValidationError) as err:
         logger.error("Unable to parse config file: %s", err)
         exit(1)
 

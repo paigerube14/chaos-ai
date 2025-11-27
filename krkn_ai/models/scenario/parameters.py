@@ -307,3 +307,44 @@ class EgressParameter(BaseParameter):
     krknctl_name: str = "egress"
     value: str = "true"
 
+
+class IOBlockSizeParameter(BaseParameter):
+    '''
+    Size of each write in bytes. Size can be from 1 byte to 4 Megabytes (allowed suffix are b,k,m)
+    '''
+    krknhub_name: str = "OO_BLOCK_SIZE"
+    krknctl_name: str = "oo-block-size"
+    value: str = "1m"
+
+
+class IOWorkersParameter(BaseParameter):
+    '''
+    Number of stressor instances
+    '''
+    krknhub_name: str = "IO_WORKERS"
+    krknctl_name: str = "io-workers"
+    value: int = 5
+
+    def mutate(self):
+        self.value = rng.randint(1, 10)
+
+
+class IOWriteBytesParameter(BaseParameter):
+    '''
+    writes N bytes for each hdd process. The size can be expressed as % of free space on the file system 
+    or in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g
+    '''
+    krknhub_name: str = "IO_WRITE_BYTES"
+    krknctl_name: str = "io-write-bytes"
+    value: str = "10m"
+
+
+class NodeMountPathParameter(BaseParameter):
+    '''
+    the path in the node that will be mounted in the pod and where the io hog will be executed. 
+    NOTE: be sure that kubelet has the rights to write in that node path
+    '''
+    krknhub_name: str = "NODE_MOUNT_PATH"
+    krknctl_name: str = "node-mount-path"
+    value: str = "/root"
+

@@ -4,6 +4,7 @@ import json
 from krkn_ai.utils.rng import rng
 from krkn_ai.models.scenario.base import Scenario
 from krkn_ai.models.scenario.parameters import *
+from krkn_ai.models.custom_errors import ScenarioParameterInitError
 
 
 class NodeIOHogScenario(Scenario):
@@ -12,7 +13,7 @@ class NodeIOHogScenario(Scenario):
     krknhub_image: str = "containers.krkn-chaos.dev/krkn-chaos/krkn-hub:node-io-hog"
 
     chaos_duration: TotalChaosDurationParameter = TotalChaosDurationParameter()
-    oo_block_size: IOBlockSizeParameter = IOBlockSizeParameter()
+    io_block_size: IOBlockSizeParameter = IOBlockSizeParameter()
     io_workers: IOWorkersParameter = IOWorkersParameter()
     io_write_bytes: IOWriteBytesParameter = IOWriteBytesParameter()
     node_mount_path: NodeMountPathParameter = NodeMountPathParameter()
@@ -30,7 +31,7 @@ class NodeIOHogScenario(Scenario):
     def parameters(self):
         return [
             self.chaos_duration,
-            self.oo_block_size,
+            self.io_block_size,
             self.io_workers,
             self.io_write_bytes,
             self.node_mount_path,
@@ -43,6 +44,9 @@ class NodeIOHogScenario(Scenario):
 
     def mutate(self):
         nodes = self._cluster_components.nodes
+
+        if len(nodes) == 0:
+            raise ScenarioParameterInitError("No nodes found in cluster components for node-io-hog scenario")
 
         # scenario 1: Select a random node
         if rng.random() < 0.5:
@@ -57,6 +61,10 @@ class NodeIOHogScenario(Scenario):
             for node in nodes:
                 for label, value in node.labels.items():
                     all_labels[f"{label}={value}"] += 1
+
+            if len(all_labels) == 0:
+                raise ScenarioParameterInitError("No node labels found in cluster components for node-io-hog scenario")
+
             label = rng.choice(list(all_labels.keys()))
             self.node_selector.value = label
             self.number_of_nodes.value = rng.randint(1, all_labels[label])
@@ -78,4 +86,6 @@ class NodeIOHogScenario(Scenario):
             self.taint.value = json.dumps(all_taints) if all_taints else '[]'
 
         self.io_workers.mutate()
+        self.io_write_bytes.mutate()
+        self.io_block_size.mutate()
 

@@ -15,6 +15,7 @@ from krkn_ai.models.scenario.scenario_cpu_hog import NodeCPUHogScenario
 from krkn_ai.models.scenario.scenario_memory_hog import NodeMemoryHogScenario
 from krkn_ai.models.scenario.scenario_time import TimeScenario
 from krkn_ai.models.scenario.scenario_dns_outage import DnsOutageScenario
+from krkn_ai.models.scenario.scenario_syn_flood import SynFloodScenario
 from krkn_ai.models.scenario.scenario_io_hog import NodeIOHogScenario
 
 
@@ -30,6 +31,7 @@ scenario_specs = [
     ("time_scenarios", TimeScenario),
     ("network_scenarios", NetworkScenario),
     ("dns_outage", DnsOutageScenario),
+    ("syn_flood", SynFloodScenario),
 ]
 
 class ScenarioFactory:

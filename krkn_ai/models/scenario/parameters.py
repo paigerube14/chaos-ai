@@ -307,6 +307,46 @@ class EgressParameter(BaseParameter):
     krknctl_name: str = "egress"
     value: str = "true"
 
+# SYN Flood Scenario Parameters
+class SynFloodPacketSizeParameter(BaseParameter):
+    krknhub_name: str = "PACKET_SIZE"
+    krknctl_name: str = "packet-size"
+    value: int = 120
+
+class SynFloodWindowSizeParameter(BaseParameter):
+    krknhub_name: str = "WINDOW_SIZE"
+    krknctl_name: str = "window-size"
+    value: int = 64
+
+class SynFloodTargetServiceParameter(BaseParameter):
+    krknhub_name: str = "TARGET_SERVICE"
+    krknctl_name: str = "target-service"
+    value: str = ""
+
+class SynFloodTargetPortParameter(BaseParameter):
+    krknhub_name: str = "TARGET_PORT"
+    krknctl_name: str = "target-port"
+    value: int = 80
+
+class SynFloodTargetServiceLabelParameter(BaseParameter):
+    krknhub_name: str = "TARGET_SERVICE_LABEL"
+    krknctl_name: str = "target-service-label"
+    value: str = ""
+
+class SynFloodNumberOfPodsParameter(BaseParameter):
+    krknhub_name: str = "NUMBER_OF_PODS"
+    krknctl_name: str = "number-of-pods"
+    value: int = 2
+
+class SynFloodImageParameter(BaseParameter):
+    krknhub_name: str = "IMAGE"
+    krknctl_name: str = "image"
+    value: str = "quay.io/krkn-chaos/krkn-syn-flood:latest"
+
+class SynFloodNodeSelectorsParameter(BaseParameter):
+    krknhub_name: str = "NODE_SELECTORS"
+    krknctl_name: str = "node-selectors"
+    value: str = ""
 
 class IOBlockSizeParameter(BaseParameter):
     '''

@@ -297,14 +297,14 @@ class ClusterManager:
         )
 
         # If specific patterns provided, ensure hostname is always included
-        if not label_matcher.match_all and label_matcher.include_patterns:
+        if not label_matcher.match_all and not label_matcher.include_patterns:
             # Check if hostname pattern is already included
             hostname_key = "kubernetes.io/hostname"
             if not label_matcher.matches(hostname_key):
                 # Add hostname pattern to the matcher
                 label_matcher.include_patterns.append(
                     PatternMatcher._compile_pattern(hostname_key)
-                )
+                )       
 
         nodes = self.core_api.list_node().items
 
@@ -316,6 +316,14 @@ class ClusterManager:
                 for label_key, label_value in node.metadata.labels.items():
                     if label_matcher.matches(label_key):
                         labels[label_key] = label_value
+
+            # If specific patterns provided, skip nodes with no matching label keys
+            if not label_matcher.match_all and not labels:
+                logger.debug(
+                    "Skipping node %s - no labels match pattern", node.metadata.name
+                )
+                continue
+
             # Get node taints and format as strings: "key:effect" or "key=value:effect"
             taints = []
             if node.spec.taints is not None:
